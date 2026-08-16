@@ -6,3 +6,4 @@ venv/
 .chroma/
 *.pdf
 check.py
+*:Zone.Identifiercheck.py

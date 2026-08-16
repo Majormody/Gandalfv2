@@ -3,7 +3,6 @@ import re
 
 HEADING_RE = re.compile(r"^(#{1,3})\s+(.+)$")
 
-
 def _window_text(text: str, doc_id: str, metadata: dict,
                   max_chars: int, overlap: int, id_prefix: str) -> list[Chunk]:
     """Shared splitter — same slice-based windowing used by both the
