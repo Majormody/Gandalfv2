@@ -9,7 +9,7 @@ class RawTable:
 
 @dataclass
 class ParsedDocument:
-    mardown_text: str
+    markdown_text: str
     raw_tables: list[RawTable]
 
 @dataclass
