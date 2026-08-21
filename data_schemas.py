@@ -22,18 +22,19 @@ class Chunk:
     metadata: dict  # for H1,H2
 
 @dataclass
-class RetrievedChunk(Chunk):
+class RetrievedChunk():
+    chunk: Chunk
     score: float
 
 @dataclass
-class RetrievedResult:
+class RetrievalResult:
     text_chunks: list[RetrievedChunk]
     table_chunks: list[RetrievedChunk]
 
 @dataclass
 class GenerationResult:
     answer: str
-    sources: RetrievedResult
+    sources: RetrievalResult
 
 @dataclass
 class IngestSummary:
