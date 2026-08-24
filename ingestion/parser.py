@@ -2,6 +2,9 @@ from data_schemas import RawTable, ParsedDocument
 import pymupdf4llm, pymupdf
 from error_classes import PDFParsingError
 
+
+pymupdf4llm.use_layout(False)
+
 def parse_pdf(file_path : str) -> ParsedDocument:
     try:
         with pymupdf.open(file_path) as doc:

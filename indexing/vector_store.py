@@ -1,5 +1,5 @@
 #Files Imported
-from embedder import Embedder
+from indexing.embedder import Embedder
 from data_schemas import Chunk, RetrievedChunk
 from typing import Literal
 
@@ -22,7 +22,12 @@ class VectorStore:
         else:
             self._client = chromadb.PersistentClient(path=persist_dir)
 
-        self._collection = self._client.get_or_create_collection(name=collection_name)  
+        self._collection = self._client.get_or_create_collection(
+            name=self._collection_name,
+            configuration={
+                "hnsw": {
+                    "space": "cosine"} 
+                                        })  
 
     def add_chunks(self, chunks: list[Chunk]):
 
@@ -32,8 +37,8 @@ class VectorStore:
 
         def prepare_metadata(metadata: dict) -> dict:
             return {
-                key: json.dumps(value) if isinstance(value, (list, dict)) else value
-            for key,value in metadata.items()}
+                key: json.dumps(value) for key,value in metadata.items()
+                }
 
         embeddings = self._embedder.embed_texts([chunk.content for chunk in chunks])
         ids = []
@@ -61,7 +66,12 @@ class VectorStore:
 
     def clear(self):
         self._client.delete_collection(name=self._collection_name)
-        self._collection = self._client.get_or_create_collection(name=self._collection_name)
+        self._collection = self._client.get_or_create_collection(
+            name=self._collection_name,
+            configuration={
+                "hnsw": {
+                    "space": "cosine"} 
+                                        }) 
 
 
     def query(self, query_embedding: list[float], top_k: int,
@@ -70,6 +80,11 @@ class VectorStore:
         if not query_embedding:
             return []
 
+        match_count = len(self._collection.get(where={"chunk_type":chunk_type})["ids"])
+        effective_k = min(top_k, match_count)
+        if effective_k == 0:
+            return []
+        
         def reconstruct_metadata(metadata: dict, chunk_fields: set) -> dict:
             return {
                 key: json.loads(value)
@@ -77,32 +92,29 @@ class VectorStore:
                 if key not in chunk_fields
             }
 
-        match_count = len(self._collection.get(where={"chunk_type":chunk_type})["ids"])
-        effective_k = min(top_k, match_count)
-        results = self._collection.get(
-            query_embeddings=query_embedding,
-            limit=effective_k,
+        results = self._collection.query(
+            query_embeddings=[query_embedding],
+            n_results=effective_k,
             where={"chunk_type":chunk_type}
             )
         
         retrieved_chunks = []
-        for i in range(len(results["ids"][0])):
-            for chunk_id, content, metadata, score in zip(
-                results["ids"][i], results["documents"][i],
-                results["metadatas"][i], results["distances"][i]):
+        for chunk_id, content, metadata, distance in zip(
+            results["ids"][0],results["documents"][0],
+            results["metadatas"][0], results["distances"][0]):
 
                 
-                chunk_metadata = reconstruct_metadata(metadata.copy(), {"page_number", "chunk_type", "doc_id"})
+            chunk_metadata = reconstruct_metadata(metadata.copy(), {"page_number", "chunk_type", "doc_id"})
 
-                chunk = Chunk(
-                    chunk_id = chunk_id,
-                    content = content,
-                    chunk_type = metadata["chunk_type"],
-                    doc_id = metadata["doc_id"],
-                    metadata = chunk_metadata,
-                    page_number = metadata.get("page_number", None)
+            chunk = Chunk(
+                chunk_id = chunk_id,
+                content = content,
+                chunk_type = metadata["chunk_type"],
+                doc_id = metadata["doc_id"],
+                metadata = chunk_metadata,
+                page_number = metadata.get("page_number", None)
                 )
-                retrieved_chunks.append(RetrievedChunk(chunk, score))
+            retrieved_chunks.append(RetrievedChunk(chunk,1-distance))
 
         return retrieved_chunks
                 
