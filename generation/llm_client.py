@@ -1,13 +1,13 @@
 from openai import OpenAI
 
 import config
+from error_classes import LLMGenerationError
 
 
 class LLMClient:
     def __init__(self, api_key: str=config.GROQ_API_KEY,
                  model_name: str=config.GROQ_MODEL_NAME):
 
-        self._api_key = api_key
         self._model_name = model_name
 
         self.client = OpenAI(
@@ -16,24 +16,26 @@ class LLMClient:
         )
 
     def generate(self, system_prompt: str, user_prompt: str)-> str :
+        try:
+            response = self.client.chat.completions.create(
+            messages =[ 
+                            {
+                        "role": "system",
+                        "content": system_prompt
+                            },
 
-        response = self.client.chat.completions.create(
-           messages =[ 
-                        {
-                    "role": "system",
-                    "content": system_prompt
-                        },
+                            {
+                        "role": "user",
+                        "content": user_prompt
+                        }
+                    ],
 
-                        {
-                     "role": "user",
-                    "content": user_prompt
-                    }
-                ],
+                model = self._model_name
+            )
 
-            model = self._model_name
-        )
-
-        return response.choices[0].message.content
+            return response.choices[0].message.content
+        except Exception as e:
+            raise LLMGenerationError(f"Failed to generate response from provider: {e}") from e
 
 
 
