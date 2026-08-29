@@ -13,7 +13,7 @@ def parse_pdf(file_path : str) -> ParsedDocument:
             table_index = 0
             for page_index, page in enumerate(doc, start = 1):
                 try:
-                    tables = page.find_tables(use_layout = False) 
+                    tables = page.find_tables() 
 
                     for table in tables.tables:
                         table_index +=1
