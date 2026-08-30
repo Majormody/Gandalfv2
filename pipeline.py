@@ -36,9 +36,7 @@ class RagPipeline:
             if status_fn: status_fn("Parsing PDF!")
 
             parsed_document = parse_pdf(file_path)
-            # debugging
-            status_fn(f"table chunks: {len(parsed_document.raw_tables)}")
-
+           
             text_chunks = chunk_markdown(md_text=parsed_document.markdown_text, doc_id=file_name)
             table_chunks = chunk_tables(raw_tables=parsed_document.raw_tables, doc_id=file_name)
 

@@ -4,7 +4,7 @@ class EvalRecord:
     question: str
     contexts: list[str]
     answer: str
-    ground_trush: str
+    ground_truth: str
 
 
 from pipeline import RagPipeline
