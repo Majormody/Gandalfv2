@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import time
+
 @dataclass
 class EvalRecord:
     question: str
@@ -14,6 +16,7 @@ def build_eval_dataset(pipeline: RagPipeline, qa_pairs: list[tuple[str, str]])->
 
     for question, ground_truth in qa_pairs:
         gen_result = pipeline.ask(question)
+        time.sleep(23)
         model_answer = gen_result.answer
         contexts = []
         for text_chunk in gen_result.sources.text_chunks:
