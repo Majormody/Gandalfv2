@@ -1,3 +1,4 @@
+from config import NUMBER_OF_TABLE_CHUNKS, NUMBER_OF_TEXT_CHUNKS
 from indexing.embedder import Embedder
 from indexing.vector_store import VectorStore
 from retrieval.retriever import Retriever
@@ -56,7 +57,7 @@ class RagPipeline:
             n_table=len(table_chunks)
         )
 
-    def ask(self, query: str, n_text: int = 3, n_table: int = 8)-> GenerationResult:
+    def ask(self, query: str, n_text: int = NUMBER_OF_TEXT_CHUNKS , n_table: int = NUMBER_OF_TABLE_CHUNKS)-> GenerationResult:
 
         retrieval_results = self.retriever.retrieve(query=query,
                                                    n_text=n_text,

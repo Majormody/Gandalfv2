@@ -6,11 +6,12 @@ from indexing.embedder import Embedder
 
 import csv
 import json
-from ragas.metrics import (
-    answer_relevancy,
-    faithfulness,
-    context_recall,
-    context_precision,
+from pathlib import Path
+from ragas.metrics.collections import (
+    Answer_Relevancy,
+    Faithfulness,
+    Context_recall,
+    Context_precision,
 )
     
 
@@ -43,39 +44,67 @@ def load_eval_records(path: str) -> list[EvalRecord]:
 
     return [EvalRecord(**record) for record in data]
 
+def save_eval_batch(result, path ="/root/AIProjects/Gandalfv2/evaluation/evaluation_results.json"):
+    path = Path(path)
+
+    batch_result = result.to_pandas().to_dict(orient="records")
+
+    if path.exists():
+        with path.open("r", encoding="utf-8") as f:
+            all_results = json.load(f)
+
+    else:
+        all_results = []
+
+    all_results.extend(batch_result)
 
 
-with open("/root/AIProjects/Gandalfv2/stm32h753ii.pdf","rb") as f: #load the datasheet as bytes
-    datasheet = f.read()
+    with path.open("r", encoding="utf-8") as f:
+        json.dump(all_results, f, indent=2)
 
-print("Datasheet Read!")
 
-loaded_qa = load_questions("/root/AIProjects/Gandalfv2/stm32h753_rag_dataset.txt")  #load the quesiton
+# with open("/root/AIProjects/Gandalfv2/stm32h753ii.pdf","rb") as f: #load the datasheet as bytes
+#     datasheet = f.read()
 
-print("QA Loaded")
+# print("Datasheet Read!")
 
-rag = RagPipeline(Embedder())  #load the RAG pipeline
+# loaded_qa = load_questions("/root/AIProjects/Gandalfv2/stm32h753_rag_dataset.txt")  #load the quesiton
 
-print("Pipeline Created")
+# print("QA Loaded")
 
-rag.ingest(pdf_bytes=datasheet, file_name="stm32h753ii")  #ingestint the datasheet
+# rag = RagPipeline(Embedder())  #load the RAG pipeline
 
-print("Datasheet ingested")
+# print("Pipeline Created")
 
-records = build_eval_dataset(
-    pipeline=rag,
-    qa_pairs=loaded_qa
-    )
+# rag.ingest(pdf_bytes=datasheet, file_name="stm32h753ii")  #ingestint the datasheet
 
-print("Records Built")
+# print("Datasheet ingested")
 
-save_eval_records(
-    records,
-    "/root/AIProjects/Gandalfv2/evaluation/eval_records.json",
-)
+# records = build_eval_dataset(
+#     pipeline=rag,
+#     qa_pairs=loaded_qa[:20]
+#     )
 
-print("Records Saved")
+# print("Records Built")
 
-#result = run_ragas_eval(records=records,metrics=[answer_relevancy, faithfulness, context_recall, context_precision])
+# save_eval_records(
+#     records,
+#     "/root/AIProjects/Gandalfv2/evaluation/eval_records1-20.json",
+# )
 
-#print(result)
+
+# print("Records Saved")
+
+records = load_eval_records("/root/AIProjects/Gandalfv2/evaluation/eval_records20.json")
+
+print("Records Loaded")
+
+result = run_ragas_eval(records=records,metrics=[Answer_Relevancy(strcitness=1), 
+                                                 Faithfulness, 
+                                                 Context_recall, 
+                                                 Context_precision])
+print(result)
+
+save_eval_batch(result)
+
+print("Result batch saved")

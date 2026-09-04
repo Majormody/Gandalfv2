@@ -46,8 +46,3 @@ def run_ragas_eval(records: list[EvalRecord], metrics: list):
 
     return result
 
-
-
-
-
-
