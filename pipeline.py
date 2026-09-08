@@ -65,13 +65,15 @@ class RagPipeline:
         system_prompt = build_system_prompt()
         user_prompt = build_user_prompt(query=query,
                                         retrieval=retrieval_results)
-        answer = self.llm_client.generate(system_prompt=system_prompt,
+        while True:
+            answer = self.llm_client.generate(system_prompt=system_prompt,
                                           user_prompt=user_prompt)
+            if answer and answer.strip():
 
-        return GenerationResult(
-            answer=answer,
-            sources=retrieval_results
-        )
+                return GenerationResult(
+                answer=answer,
+                sources=retrieval_results
+                            )
 
         
         
