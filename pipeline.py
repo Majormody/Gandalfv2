@@ -21,6 +21,7 @@ class RagPipeline:
         self.vector_store = VectorStore(embedder=embedder)
         self.retriever = Retriever(vector_store=self.vector_store, embedder=embedder)
         self.llm_client = LLMClient()
+        self._document_uploaded = False
 
     def ingest(self, pdf_bytes: bytes, file_name: str,
                status_fn: Callable[[str], None] | None = None)->IngestSummary:
@@ -50,7 +51,7 @@ class RagPipeline:
             if file_path and os.path.exists(file_path):
                 os.remove(file_path)
 
-
+        self._document_uploaded = True
         return IngestSummary(
             document=file_name,
             n_text=len(text_chunks),
@@ -74,6 +75,10 @@ class RagPipeline:
                 answer=answer,
                 sources=retrieval_results
                             )
+
+
+    def has_document(self)-> bool :
+        return self._document_uploaded
 
         
         
