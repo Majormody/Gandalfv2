@@ -14,3 +14,7 @@ class Embedder:
     def embed_query(self, query: str) -> list[float]: 
 
         return self._model.encode([query], show_progress_bar=False)[0].tolist()
+
+
+def get_embedder()-> Embedder:
+    return Embedder()
