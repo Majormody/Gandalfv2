@@ -1,5 +1,6 @@
 from ui.components import render_chat_history, render_answer, render_upload_widget
 from ui.state import get_pipeline, get_chat_history, append_to_chat_history, get_embedder
+from config import NUMBER_OF_TABLE_CHUNKS, NUMBER_OF_TEXT_CHUNKS
 
 
 import streamlit as st
@@ -20,13 +21,13 @@ with st.sidebar:
 
     num_of_text_chunks = st.slider(
         label = "Content sections to retrieve",
-        min_value = 3,
+        min_value = NUMBER_OF_TEXT_CHUNKS,
         max_value= 10
     )
 
     num_of_table_chunks = st.slider(
             label = "Structured tables to retrieve",
-            min_value = 8,
+            min_value = NUMBER_OF_TABLE_CHUNKS,
             max_value= 12
         )
 

@@ -16,9 +16,9 @@ class LLMClient:
         )
 
     def generate(self, system_prompt: str, user_prompt: str)-> str :
-        try:
-            response = self.client.chat.completions.create(
-            messages =[ 
+
+        response = self.client.chat.completions.create(
+        messages =[ 
                             {
                         "role": "system",
                         "content": system_prompt
@@ -33,9 +33,8 @@ class LLMClient:
                 model = self._model_name
             )
 
-            return response.choices[0].message.content
-        except Exception as e:
-            raise LLMGenerationError(f"Failed to generate response from provider: {e}") from e
+        return response.choices[0].message.content
+      
 
 
 

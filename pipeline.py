@@ -17,8 +17,8 @@ import os
 
 
 class RagPipeline:
-    def __init__(self, embedder: Embedder):
-        self.vector_store = VectorStore(embedder=embedder)
+    def __init__(self, embedder: Embedder, cloud: bool = 0):
+        self.vector_store = VectorStore(embedder=embedder, cloud=cloud)
         self.retriever = Retriever(vector_store=self.vector_store, embedder=embedder)
         self.llm_client = LLMClient()
         self._document_uploaded = False
