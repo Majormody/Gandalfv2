@@ -1,26 +1,38 @@
 #Files Imported
 from indexing.embedder import Embedder
 from data_schemas import Chunk, RetrievedChunk
-from typing import Literal
+from config import CHROMADB_API_KEY, CHROMADB_TENANT, CHROMADB_DATABASE
 
 #Packages Imported
+from typing import Literal
 import chromadb
 import json
 
 class VectorStore:
 
     def __init__(self, embedder: Embedder,
+                 client: chromadb.ClientAPI | None = None,
                  persist_dir: str | None = None,
-                 collection_name: str = "datasheet_chunks"):
+                 collection_name: str = "datasheet_chunks",
+                 cloud: bool = 0,
+                    ):
 
         self._embedder = embedder
         self._collection_name = collection_name
-
-        if not persist_dir:
-            self._client = chromadb.Client()
-            
+        if client:
+            self._client=client
+        if cloud:
+            self._client = chromadb.CloudClient(
+                api_key=CHROMADB_API_KEY,
+                tenant=CHROMADB_TENANT,
+                database=CHROMADB_DATABASE,
+            )
         else:
-            self._client = chromadb.PersistentClient(path=persist_dir)
+            if not persist_dir:
+                self._client = chromadb.Client()
+                
+            else:
+                self._client = chromadb.PersistentClient(path=persist_dir)
 
         self._collection = self._client.get_or_create_collection(
             name=self._collection_name,
