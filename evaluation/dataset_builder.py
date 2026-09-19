@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 
 import time
@@ -35,7 +36,6 @@ def build_eval_dataset(pipeline: RagPipeline, qa_pairs: list[tuple[str, str]])->
 
     return eval_records
 
-        
 
         
 

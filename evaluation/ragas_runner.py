@@ -53,17 +53,6 @@ context_precision=ContextPrecision(llm=evaluator_llm)
 metrics = [answer_relevancy, faithfulness, context_recall, context_precision]
 
 
-# def records_to_dataset(records: list[EvalRecord]) -> Dataset:
-#     return Dataset.from_list([
-#         {
-#             "user_input": record.question,
-#             "retrieved_contexts": record.contexts,
-#             "response": record.answer,
-#             "reference": record.ground_truth,
-#         }
-#         for record in records
-#     ])
-
 def evaluate_record(record: EvalRecord)-> dict:
 
     results = {}
